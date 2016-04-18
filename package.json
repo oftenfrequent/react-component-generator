@@ -13,6 +13,7 @@
     "react-component": "index.js"
   },
   "dependencies": {
+    "fs": "0.0.2",
     "ncp": "^2.0.0",
     "path": "^0.12.7"
   }
