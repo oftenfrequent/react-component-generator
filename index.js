@@ -2,12 +2,12 @@
 var fs = require('fs');
 var ncp = require('ncp').ncp;
 var path = require('path');
-var compGenerator = require('./generated/componentMainString');
+var compGenerator = require('./generated/componentGenerator');
+var reducerGenerator = require('./generated/reducerGenerator');
 
 // file paths
-var currentLocation = process.cwd() + '/' + process.argv[2] + '.js';
-var componentFilePath = path.join(__dirname + '/generated/componentMain.js');
-
+var currentCompLocation = process.cwd() + '/' + process.argv[2] + '.js';
+var currentReducerLocation = process.cwd() + '/' + process.argv[3] + 'Reducer.js';
 
 // create new files
 // ncp.limit = 16;
@@ -17,16 +17,18 @@ var componentFilePath = path.join(__dirname + '/generated/componentMain.js');
 // 	}
 // 	console.log('done!');
 // });
+if(process.argv[2] === 'reducer') {
+	fs.writeFile(currentReducerLocation, reducerGenerator(process.argv.slice(4)), function(err){
+		if(err) return console.log(err);
+		else console.log('reducer created');
+	});
+} else {
+	fs.writeFile(currentCompLocation, compGenerator(process.argv[2], displayOptions(process.argv.slice(3))), function(err) {
+		if(err) return console.log(err);
+		else console.log('component created');
+	});
 
-fs.writeFile(currentLocation, compGenerator(process.argv[2], displayOptions(process.argv.slice(3))), function(err){
-	console.log('error: ', err)
-})
-
-// console.log('string: \n', compGenerator(process.argv[2], displayOptions(process.argv.slice(3))))
-// fs.createWriteStream()
-
-// displayOptions(process.argv.slice(3));
-
+}
 
 
 
