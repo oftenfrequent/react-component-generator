@@ -5,7 +5,7 @@ module.exports = function(name, propString) {
 "import { fromJS } from 'immutable';"+'\n'+
 ""+'\n'+
 ""+'\n'+
-"export default class " + name + " extends React.Component {"+'\n'+
+"export class " + name + " extends React.Component {"+'\n'+
 "  constructor(props) {"+'\n'+
 "    //defaults here"+'\n'+
 "    props = Object.assign({"+'\n'+
@@ -40,14 +40,14 @@ module.exports = function(name, propString) {
 "}"+'\n'+
 ""+'\n'+
 ""+'\n'+
-"export default connect({"+'\n'+
+"export default connect("+'\n'+
 "  mapStateToProps,"+'\n'+
 "  {"+'\n'+
 "    //action creators"+'\n'+
 "  }"+'\n'+
-"})(" + name + ")"+'\n'+
+")(" + name + ")"+'\n'+
 ""+'\n'+
 name + ".propTypes = {"+'\n'+
-propString + '\n' +
+propString +
 "};"+'\n';
 };

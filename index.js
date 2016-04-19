@@ -6,7 +6,7 @@ var compGenerator = require('./generated/componentGenerator');
 var reducerGenerator = require('./generated/reducerGenerator');
 
 // file paths
-var currentCompLocation = process.cwd() + '/' + process.argv[2] + '.js';
+var currentCompLocation = process.cwd() + '/' + process.argv[2] + '.jsx';
 var currentReducerLocation = process.cwd() + '/' + process.argv[3] + 'Reducer.js';
 
 // create new files
