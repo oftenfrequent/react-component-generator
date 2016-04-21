@@ -10,7 +10,7 @@
   "license": "ISC",
   "preferGlobal": true,
   "bin": {
-    "react-component": "index.js"
+    "react-generator": "index.js"
   },
   "dependencies": {
     "fs": "0.0.2",

@@ -4,17 +4,7 @@ var ncp = require('ncp').ncp;
 var path = require('path');
 var compGenerator = require('./generated/componentGenerator');
 var reducerGenerator = require('./generated/reducerGenerator');
-
-// file paths
-
-// create new files
-// ncp.limit = 16;
-// ncp(componentFilePath, currentLocation, function (err) {
-// 	if (err) {
-// 		return console.error(err);
-// 	}
-// 	console.log('done!');
-// });
+var reducerSpecGenerator = require('./generated/reducerSpecGenerator');
 
 switch (process.argv[2]) {
 	case 'component':
@@ -30,19 +20,10 @@ switch (process.argv[2]) {
 			if(err) return console.log(err);
 			else console.log('reducer created');
 		});
+	case 'reducerSpec':
+		var currentReducerSpecLocation = process.cwd() + '/' + process.argv[3] + 'Reducer.spec.js';
+		fs.writeFile(currentReducerSpecLocation, reducerSpecGenerator(process.argv[3], process.argv.slice(4)), function (err) {
+			if(err) return console.log(err);
+			else console.log('reducer spec created - get testing!');
+		})
 }
-
-
-
-// if(process.argv[2] === 'reducer') {
-// 	fs.writeFile(currentReducerLocation, reducerGenerator(process.argv.slice(4)), function(err){
-// 		if(err) return console.log(err);
-// 		else console.log('reducer created');
-// 	});
-// } else {
-// 	fs.writeFile(currentCompLocation, compGenerator(process.argv[2], process.argv.slice(3)), function(err) {
-// 		if(err) return console.log(err);
-// 		else console.log('component created');
-// 	});
-
-// }
