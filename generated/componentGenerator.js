@@ -1,4 +1,4 @@
-module.exports = function(name, propString) {
+module.exports = function(name, propsArray) {
 	return "import React from 'react';"+'\n'+
 "import PureRenderMixin from 'react-addons-pure-render-mixin';"+'\n'+
 "import { connect } from 'react-redux';"+'\n'+
@@ -48,6 +48,33 @@ module.exports = function(name, propString) {
 ")(" + name + ")"+'\n'+
 ""+'\n'+
 name + ".propTypes = {"+'\n'+
-propString +
+createPropStrings(propsArray) +
 "};"+'\n';
 };
+
+
+// generated prop types
+function createPropStrings(propsArray) {
+  var spacing = '    ';
+  var propTypeString = '';
+
+  propsArray.map(function(prop) {
+    if(prop.indexOf(':')>-1) {
+      var keyValue = prop.split(':');
+      if (keyValue[1].indexOf('date') > -1 || keyValue[1].indexOf('moment') > -1) {
+        propTypeString += spacing + keyValue[0] + ': React.PropTypes.instanceOf(';
+        propTypeString += isRequired(keyValue[1]) ? keyValue[1].substr(0,keyValue[1].length - 1) + ').isRequired,\n' : keyValue[1] + '),\n';
+      } else {
+        propTypeString += spacing + keyValue[0] + ': React.PropTypes.';
+        propTypeString += isRequired(keyValue[1]) ? keyValue[1].substr(0,keyValue[1].length - 1) + '.isRequired,\n' : keyValue[1] + ',\n';
+      }
+    } else {
+      propTypeString += spacing + '// ' + prop + ': React.PropTypes.?????' + ',\n';
+    }
+  })
+  return propTypeString;
+
+  function isRequired(string) {
+    return string.substr(-1) === '!';
+  }
+}
