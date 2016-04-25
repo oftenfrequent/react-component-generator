@@ -15,12 +15,12 @@ Files are created in your present working directory so please navigate to the co
 
 All commands follow a standard for generating a file:
 ```
-$ react-generator file_type NameOfFile options..
+$ react-generator relative/location file_type ComponentOrReducerName options..
 ```
 
 * Component
 ```
-$ react-generator component Brain speed:number thoughts:object! createdAt:date notsureofthetype
+$ react-generator component ./src/Brain Brain speed:number thoughts:object! createdAt:date notsureofthetype
 ```
 
 This command would generate a react component called Brain saved to (cwd)/Brain.jsx. The component would have four properties being passed into it (speed, thoughts, createdAt, notsureofthetype) all with corresponding React.propTypes except for the last one because it lacks the ':(propType)'. Any PropType ending in a ! will be a required propType.

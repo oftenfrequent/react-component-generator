@@ -1,9 +1,10 @@
-module.exports = function(funcArray) {
+module.exports = function(reducerName, funcArray) {
   return "import { Map, fromJS } from 'immutable';"+'\n'+
 "import {"+'\n'+
 functionDeclarations(funcArray) +
 " } from '../../constants/ActionTypes';"+'\n'+
 ""+'\n'+
+"// " + reducerName+'\n'+
 "export default function(state = Map(), action) {"+'\n'+
 "  switch (action.type){"+'\n'+
 "    case 'EXAMPLE' :"+'\n'+
