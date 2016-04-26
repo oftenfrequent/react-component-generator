@@ -7,61 +7,74 @@ var compGenerator = require('./generated/componentGenerator');
 var reducerGenerator = require('./generated/reducerGenerator');
 var reducerSpecGenerator = require('./generated/reducerSpecGenerator');
 
-console.log('REL PATH: ', process.argv[3])
 var directoryLocation = path.resolve(process.cwd(), process.argv[3])
-console.log('RESOLVED PATH: ', directoryLocation )
+var pointerArray = BuildPointers();
+console.log('PIINTER ARR', pointerArray)
+var fileLocation = pointerArray[0];
+var templateGenerator = pointerArray[1];
 
-// TODO: prompt if file does exist continue (y/n)
-fs.exists(directoryLocation, function (exists) {
-  if(exists) {
-    //check if file exists
-    FileCreator()
-    console.log('does exist')
-  } else {
-    console.log('does not exist')
-    CreateDirectory()
-  }
-})
+function MainScript(){
+  CheckIfDirectoryExists(directoryLocation, CreateDirectory, function(){
+    console.log('directory exists');
+    CheckIfFileExists(fileLocation, FileCreator, function(){
+      console.log('this file already exists');
+      console.log('it will not overwrite without a file without the -f?');
+      console.log('-------------------------or-------------------------');
+      console.log('it will prompt you asking to overwrite this file (y/n');
+    })
+  })
+}
 
-function CreateDirectory(err) {
+MainScript();
+
+  // TODO: should create both a file type and its spec
+function CheckIfDirectoryExists(thing, ifNotThenCreate, ifSoCallback) {
+  fs.exists(thing, function (exists) {
+    if(exists) ifSoCallback()
+    else ifNotThenCreate()
+  })
+}
+
+function CheckIfFileExists(thing, ifNotThenCreate, ifSoCallback) {
+  fs.exists(thing, function (exists) {
+    if(exists) ifSoCallback()
+    else ifNotThenCreate()
+  })
+}
+
+
+function CreateDirectory() {
   mkdirp(directoryLocation, function(err){
-    if(err) {
-      console.log(err)
-    }
-    else {
-      console.log('created directory')
-      FileCreator()
-    }
+    if(err) console.log(err)
+    else FileCreator()
   })
 }
 
 function FileCreator() {
-  console.log('building pointers');
+  fs.writeFile(fileLocation, templateGenerator(process.argv[4], process.argv.slice(5)), function(err) {
+    if(err) console.log(err)
+    else console.log(process.argv[2] + ' created');
+  })
+}
+
+
+function BuildPointers() {
+  console.log('BUILDING')
   var file = directoryLocation + '/' + process.argv[4];
-  console.log('location', file);
+  var template;
 
   switch (process.argv[2]) {
   	case 'component':
   		file += '.jsx';
-      fs.writeFile(file, compGenerator(process.argv[4], process.argv.slice(5)), function(err) {
-        if(err) console.log(err)
-        else console.log('component created');
-      })
-      return;
+      template = compGenerator;
+      return [file, template];
   	case 'reducer':
       file += 'Reducer.js';
-      fs.writeFile(file, reducerGenerator(process.argv[4], process.argv.slice(5)), function(err) {
-        if(err) console.log(err)
-        else console.log('reducer created');
-      })
-      return;
+      template = reducerGenerator;
+      return [file, template];
   	case 'reducerSpec':
       file += 'Reducer.spec.js';
-      fs.writeFile(file, reducerSpecGenerator(process.argv[4], process.argv.slice(5)), function(err) {
-        if(err) console.log(err)
-        else console.log('reducerSpec created');
-      })
-      return;
+      template = reducerSpecGenerator;
+      return [file, template];
   }
-
 }

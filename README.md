@@ -28,14 +28,14 @@ This command would generate a react component called Brain saved to (cwd)/Brain.
 
 * Reducer
 ```
-$ react-generator reducer Thoughts think eat breathe drink sleep
+$ react-generator reducer ./src/Thoughts Thoughts think eat breathe drink sleep
 ```
 This command would generate a react reducer saved to (cwd)/ThoughtsReducer.js. The reducer would be created with five actions - one for each of the words after 'Thoughts'. All actions would be trasformed to uppercase so no need to write them on the command as such.
 
 
 * Reducer Spec
 ```
-$ react-generator reducerSpec Thoughts think eat breathe drink sleep
+$ react-generator reducerSpec ./src/Thoughts Thoughts think eat breathe drink sleep
 ```
 
 This command would generate a react reducer saved to (cwd)/ThoughtsReducer.spec.js. The reducer spec would be created with five it blocks - one for each of the words after 'Thoughts'.
