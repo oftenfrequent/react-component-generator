@@ -18,13 +18,13 @@ module.exports = function (ReducerToTest, ActionsToTestArray){
 '\n'+
 "describe('"+ ReducerToTest +"', () => {"+'\n'+
 ""+'\n'+
-itBlockCreator(ActionsToTestArray)
-""+'\n'+
+itBlockCreator(ActionsToTestArray)+'\n'+
 "});"+'\n';
 };
 
 
 function itBlockCreator(ActionsToTestArray) {
+	if(!ActionsToTestArray.length) return "  it('handles an example')"+'\n';
   return ActionsToTestArray.map(function(action){
     action = action.toUpperCase();
     return "  it('handles " + action + "', () => {"+'\n'+

@@ -25,6 +25,13 @@ $ react-generator component ./src/Brain Brain speed:number thoughts:object! crea
 
 This command would generate a react component called Brain saved to (cwd)/Brain.jsx. The component would have four properties being passed into it (speed, thoughts, createdAt, notsureofthetype) all with corresponding React.propTypes except for the last one because it lacks the ':(propType)'. Any PropType ending in a ! will be a required propType.
 
+* Component Spec
+```
+$ react-generator componentSpec ./src/Brain Brain speed:number thoughts:object! createdAt:date notsureofthetype
+```
+
+Lorem ipsum working on it. The component would have four properties react reducer saved write them on the command as such. This command would generate a react reducer present working directory so please navigate to the correct location in order to ensure the correct placement of the generated.
+
 
 * Reducer
 ```

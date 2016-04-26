@@ -4,6 +4,7 @@ var ncp = require('ncp').ncp;
 var path = require('path');
 var mkdirp = require('mkdirp');
 var compGenerator = require('./generated/componentGenerator');
+var compSpecGenerator = require('./generated/componentSpecGenerator');
 var reducerGenerator = require('./generated/reducerGenerator');
 var reducerSpecGenerator = require('./generated/reducerSpecGenerator');
 
@@ -64,9 +65,13 @@ function BuildPointers() {
   var template;
 
   switch (process.argv[2]) {
-  	case 'component':
-  		file += '.jsx';
+    case 'component':
+      file += '.jsx';
       template = compGenerator;
+      return [file, template];
+    case 'componentSpec':
+      file += '.spec.jsx';
+      template = compSpecGenerator;
       return [file, template];
   	case 'reducer':
       file += 'Reducer.js';

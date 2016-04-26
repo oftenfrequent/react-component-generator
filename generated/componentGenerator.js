@@ -24,7 +24,7 @@ module.exports = function(name, propsArray) {
 "  render() {"+'\n'+
 "    return ("+'\n'+
 "      <div>"+'\n'+
-"        <h1>NEW COMPONENT</h1>"+'\n'+
+"        <h1>NEW "+name+" COMPONENT</h1>"+'\n'+
 "        <pre>{JSON.stringify(this.props)}</pre>"+'\n'+
 "      </div>"+'\n'+
 "    )"+'\n'+
@@ -57,6 +57,8 @@ createPropStrings(propsArray) +
 function createPropStrings(propsArray) {
   var spacing = '    ';
   var propTypeString = '';
+
+  if(!propsArray.length) return spacing + "// example: React.PropTypes.?????,"+'\n';
 
   propsArray.map(function(prop) {
     if(prop.indexOf(':')>-1) {
