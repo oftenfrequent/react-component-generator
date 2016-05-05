@@ -3,8 +3,7 @@ module.exports = function(reducerName, funcArray) {
 "import {"+'\n'+
 functionDeclarations(funcArray) +
 " } from '../../constants/ActionTypes';"+'\n'+
-""+'\n'+
-"// " + reducerName+'\n'+
+""+'\n\n'+
 "export default function(state = Map(), action) {"+'\n'+
 "  switch (action.type){"+'\n'+
 caseDeclarations(funcArray) +

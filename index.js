@@ -1,6 +1,5 @@
 #!/usr/bin/env node
 var fs = require('fs');
-var ncp = require('ncp').ncp;
 var path = require('path');
 var mkdirp = require('mkdirp');
 var compGenerator = require('./generated/componentGenerator');
@@ -10,7 +9,6 @@ var reducerSpecGenerator = require('./generated/reducerSpecGenerator');
 
 var directoryLocation = path.resolve(process.cwd(), process.argv[3])
 var pointerArray = BuildPointers();
-console.log('PIINTER ARR', pointerArray)
 var fileLocation = pointerArray[0];
 var templateGenerator = pointerArray[1];
 
@@ -28,7 +26,8 @@ function MainScript(){
 
 MainScript();
 
-  // TODO: should create both a file type and its spec
+  // TODO: flag to create a connected component vs dumb component
+  // TODO: prompt to create a spec if component or reducer generated
 function CheckIfDirectoryExists(thing, ifNotThenCreate, ifSoCallback) {
   fs.exists(thing, function (exists) {
     if(exists) ifSoCallback()
@@ -60,7 +59,6 @@ function FileCreator() {
 
 
 function BuildPointers() {
-  console.log('BUILDING')
   var file = directoryLocation + '/' + process.argv[4];
   var template;
 

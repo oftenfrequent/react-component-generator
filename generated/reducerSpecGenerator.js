@@ -5,7 +5,7 @@ module.exports = function (ReducerToTest, ActionsToTestArray){
 '\n'+
 "import reducer from '../"+ ReducerToTest +"';"+'\n'+
 "import {"+'\n'+
-"  EXAMPLE_REDUCER_ACTION,"+'\n'+
+functionDeclarations(ActionsToTestArray) +
 "} from '../../../constants/ActionTypes';"+'\n'+
 '\n'+
 '\n'+
@@ -22,12 +22,16 @@ itBlockCreator(ActionsToTestArray)+'\n'+
 "});"+'\n';
 };
 
+function functionDeclarations(funcArray) {
+	if(!funcArray.length) return '  EXAMPLE,\n';
+  return funcArray.map(function(func){return '  ' + func.toUpperCase() + ',\n'}).join('');
+}
 
 function itBlockCreator(ActionsToTestArray) {
-	if(!ActionsToTestArray.length) return "  it('handles an example')"+'\n';
+	if(!ActionsToTestArray.length) return "  xit('handles an example')"+'\n';
   return ActionsToTestArray.map(function(action){
     action = action.toUpperCase();
-    return "  it('handles " + action + "', () => {"+'\n'+
+    return "  xit('handles " + action + "', () => {"+'\n'+
 "    const action = {"+'\n'+
 "      type: " + action + ","+'\n'+
 "      data: example"+'\n'+

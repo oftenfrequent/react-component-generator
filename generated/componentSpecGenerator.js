@@ -42,13 +42,16 @@ function createPropStrings(propsArray) {
   return propsArray.map(function(prop) {
     if(prop.indexOf(':')>-1) {
       var keyValue = prop.split(':');
+      if(isRequired(keyValue[1])) {
+        return spacing + keyValue[0] + "='"+keyValue[1].substr(0,keyValue[1].length - 1)+"'"+'\n';
+      }
       return spacing + keyValue[0] + "='"+keyValue[1]+"'"+'\n';
     } else {
       return spacing + prop + "='null'"+'\n';
     }
   }).join('');
 
-  // function isRequired(string) {
-  //   return string.substr(-1) === '!';
-  // }
+  function isRequired(string) {
+    return string.substr(-1) === '!';
+  }
 }
