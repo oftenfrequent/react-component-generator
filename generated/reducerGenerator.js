@@ -16,12 +16,12 @@ caseDeclarations(funcArray) +
 
 function functionDeclarations(funcArray) {
 	if(!funcArray.length) return '  EXAMPLE,\n';
-  return funcArray.map(function(func){return '  ' + func.toUpperCase() + ',\n'}).join('');
+  return funcArray.map(function(func){return '  ' + func.split(':')[0].toUpperCase() + ',\n'}).join('');
 }
 
 function caseDeclarations(funcArray) {
 	if(!funcArray.length) return '    case EXAMPLE :\n      return state;\n';
   return funcArray.map(function(func) {
-    return '    case ' + func.toUpperCase() + ' :\n      return state;\n';
+    return '    case ' + func.split(':')[0].toUpperCase() + ' :\n      return state;\n';
   }).join('');
 }
