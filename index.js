@@ -54,7 +54,7 @@ function DirectoryExistsThen(fileLocation, templateGenerator) {
     console.log('this file already exists');
     console.log('it will not overwrite without a file without the -f?');
     console.log('-------------------------or-------------------------');
-    console.log('it will prompt you asking to overwrite this file (y/n');
+    console.log('it will prompt you asking to overwrite this file (y/n)');
   });
 }
 
