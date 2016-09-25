@@ -8,38 +8,30 @@ var reducerGenerator = require('./generated/reducerGenerator');
 var reducerSpecGenerator = require('./generated/reducerSpecGenerator');
 
 var directoryLocation = path.resolve(process.cwd(), process.argv[3])
-var pointerArray = BuildPointers();
+var itemToBeCreatedName = process.argv[3].split('/').pop();
+var pointerArray = BuildArrayForGeneratedFiles();
 
 
 function MainScript(){
   pointerArray.map(function(fileToBuild){
-    var fileLocation = fileToBuild.file;
-    var templateGenerator = fileToBuild.template;
-    CheckIfDirectoryExists(directoryLocation,
-      function() { CreateDirectory(fileLocation, templateGenerator) },
-      function() { DirectoryExistsThen(fileLocation, templateGenerator) }
+    CheckIfSomethingExists(directoryLocation,
+      function() { CreateDirectory(fileToBuild.fileLocation, fileToBuild.template) },
+      function() { DirectoryExistsThen(fileToBuild.fileLocation, fileToBuild.template) }
     )
   });
 }
 
 MainScript();
 
+  // TODO: minify files
   // TODO: flag to create a connected component vs dumb component
   // TODO: prompt to create a spec if component or reducer generated
-function CheckIfDirectoryExists(thing, ifNotThenCreate, ifSoCallback) {
-  fs.exists(thing, function (exists) {
+function CheckIfSomethingExists(directoryOrFile, ifNotThenCreate, ifSoCallback) {
+  fs.exists(directoryOrFile, function (exists) {
     if(exists) ifSoCallback()
     else ifNotThenCreate()
   })
 }
-
-function CheckIfFileExists(thing, ifNotThenCreate, ifSoCallback) {
-  fs.exists(thing, function (exists) {
-    if(exists) ifSoCallback()
-    else ifNotThenCreate()
-  })
-}
-
 
 function CreateDirectory(fileLocation, templateGenerator) {
   mkdirp(directoryLocation, function(err){
@@ -49,8 +41,8 @@ function CreateDirectory(fileLocation, templateGenerator) {
 }
 
 function DirectoryExistsThen(fileLocation, templateGenerator) {
-  console.log('directory exists');
-  CheckIfFileExists(fileLocation, function() { FileCreator(fileLocation, templateGenerator) }, function(){
+  // console.log('directory exists');
+  CheckIfSomethingExists(fileLocation, function() { FileCreator(fileLocation, templateGenerator) }, function(){
     console.log('this file already exists');
     console.log('it will not overwrite without a file without the -f?');
     console.log('-------------------------or-------------------------');
@@ -59,50 +51,50 @@ function DirectoryExistsThen(fileLocation, templateGenerator) {
 }
 
 function FileCreator(fileLocation, templateGenerator) {
-  fs.writeFile(fileLocation, templateGenerator(process.argv[4], process.argv.slice(5)), function(err) {
+  fs.writeFile(fileLocation, templateGenerator(itemToBeCreatedName, process.argv.slice(4)), function(err) {
     if(err) console.log(err)
     else console.log(process.argv[2] + ' created');
   })
 }
 
 
-function BuildPointers() {
-  var file = directoryLocation + '/' + process.argv[4];
+function BuildArrayForGeneratedFiles() {
+  var fileLocation = directoryLocation + '/' + itemToBeCreatedName;
   var template;
 
   switch (process.argv[2]) {
     case 'component':
-      file += '.jsx';
+      fileLocation += '.jsx';
       template = compGenerator;
-      return [{file, template}];
+      return [{fileLocation, template}];
     case 'componentSpec':
-      file += '.spec.jsx';
+      fileLocation += '.spec.jsx';
       template = compSpecGenerator;
-      return [{file, template}];
+      return [{fileLocation, template}];
     case 'reducer':
-      file += 'Reducer.js';
+      fileLocation += 'Reducer.js';
       template = reducerGenerator;
-      return [{file, template}];
+      return [{fileLocation, template}];
     case 'reducerSpec':
-      file += 'Reducer.spec.js';
+      fileLocation += 'Reducer.spec.js';
       template = reducerSpecGenerator;
-      return [{file, template}];
+      return [{fileLocation, template}];
     case 'all':
       return [
         {
-          file: file + '.jsx',
+          fileLocation: fileLocation + '.jsx',
           template: compGenerator
         },
         {
-          file: file + '.spec.jsx',
+          fileLocation: fileLocation + '.spec.jsx',
           template: compSpecGenerator
         },
         {
-          file: file + 'Reducer.js',
+          fileLocation: fileLocation + 'Reducer.js',
           template: reducerGenerator
         },
         {
-          file: file + 'Reducer.spec.js',
+          fileLocation: fileLocation + 'Reducer.spec.js',
           template: reducerSpecGenerator
         }
       ];

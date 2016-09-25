@@ -16,7 +16,7 @@ functionDeclarations(ActionsToTestArray) +
 "})"+'\n'+
 '\n'+
 '\n'+
-"describe('"+ ReducerToTest +"', () => {"+'\n'+
+"describe('"+ ReducerToTest +" Reducer', () => {"+'\n'+
 ""+'\n'+
 itBlockCreator(ActionsToTestArray)+'\n'+
 "});"+'\n';

@@ -13,7 +13,7 @@ module.exports = function (name, propsArray){
 ""+'\n'+
 "import "+name+"  from '../"+name+"';"+'\n'+
 ""+'\n'+
-"describe('Trip Search', () => {"+'\n'+
+"describe('"+name+" Component', () => {"+'\n'+
 ""+'\n'+
 "  xit('does something you expect', () => {"+'\n'+
 "    const component = renderIntoDocument("+'\n'+
