@@ -7,13 +7,23 @@ var compSpecGenerator = require('./generated/componentSpecGenerator');
 var reducerGenerator = require('./generated/reducerGenerator');
 var reducerSpecGenerator = require('./generated/reducerSpecGenerator');
 
-var directoryLocation = path.resolve(process.cwd(), process.argv[3])
-var itemToBeCreatedName = process.argv[3].split('/').pop();
-var pointerArray = BuildArrayForGeneratedFiles();
 
+// arguments in call
+var relevantArguments = process.argv.splice(2,process.argv.length)
+var fileType = relevantArguments.splice(0,1).join('')
+var fullFileLocation = relevantArguments.splice(0,1).join('')
+
+// args for functions
+var directoryNameLocation = fullFileLocation.substr(0, fullFileLocation.lastIndexOf('/'))
+var fileToBeCreatedName = fullFileLocation.substr(fullFileLocation.lastIndexOf('/') + 1, fullFileLocation.length)
+var directoryLocation = path.resolve(process.cwd(), directoryNameLocation)
+var filesToBeCreatedArray = BuildArrayForGeneratedFiles();
+
+
+MainScript();
 
 function MainScript(){
-  pointerArray.map(function(fileToBuild){
+  filesToBeCreatedArray.map(function(fileToBuild){
     CheckIfSomethingExists(directoryLocation,
       function() { CreateDirectory(fileToBuild.fileLocation, fileToBuild.template) },
       function() { DirectoryExistsThen(fileToBuild.fileLocation, fileToBuild.template) }
@@ -21,11 +31,6 @@ function MainScript(){
   });
 }
 
-MainScript();
-
-  // TODO: minify files
-  // TODO: flag to create a connected component vs dumb component
-  // TODO: prompt to create a spec if component or reducer generated
 function CheckIfSomethingExists(directoryOrFile, ifNotThenCreate, ifSoCallback) {
   fs.exists(directoryOrFile, function (exists) {
     if(exists) ifSoCallback()
@@ -41,7 +46,6 @@ function CreateDirectory(fileLocation, templateGenerator) {
 }
 
 function DirectoryExistsThen(fileLocation, templateGenerator) {
-  // console.log('directory exists');
   CheckIfSomethingExists(fileLocation, function() { FileCreator(fileLocation, templateGenerator) }, function(){
     console.log('this file already exists');
     console.log('it will not overwrite without a file without the -f?');
@@ -51,18 +55,18 @@ function DirectoryExistsThen(fileLocation, templateGenerator) {
 }
 
 function FileCreator(fileLocation, templateGenerator) {
-  fs.writeFile(fileLocation, templateGenerator(itemToBeCreatedName, process.argv.slice(4)), function(err) {
+  fs.writeFile(fileLocation, templateGenerator(fileToBeCreatedName, relevantArguments), function(err) {
     if(err) console.log(err)
-    else console.log(process.argv[2] + ' created');
+    else console.log(fileType + ' created');
   })
 }
 
 
 function BuildArrayForGeneratedFiles() {
-  var fileLocation = directoryLocation + '/' + itemToBeCreatedName;
+  var fileLocation = directoryLocation + '/' + fileToBeCreatedName;
   var template;
 
-  switch (process.argv[2]) {
+  switch (fileType) {
     case 'component':
       fileLocation += '.jsx';
       template = compGenerator;

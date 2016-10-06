@@ -50,4 +50,7 @@ This command would generate a react reducer saved to (cwd)/ThoughtsReducer.spec.
 
 
 
-
+TODOs
+* minify files
+* flag to create a connected component vs dumb component
+* prompt to create a spec if component or reducer generated
