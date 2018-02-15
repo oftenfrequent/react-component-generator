@@ -2,10 +2,13 @@
 var fs = require('fs');
 var path = require('path');
 var mkdirp = require('mkdirp');
-var compGenerator = require('./generated/componentGenerator');
+// var compGenerator = require('./generated/componentGenerator');
+// var compGenerator = require('./generated/componentDefault');
 var compSpecGenerator = require('./generated/componentSpecGenerator');
 var reducerGenerator = require('./generated/reducerGenerator');
 var reducerSpecGenerator = require('./generated/reducerSpecGenerator');
+
+var { createPropStrings } = require('./helpers');
 
 
 // arguments in call
@@ -55,10 +58,25 @@ function DirectoryExistsThen(fileLocation, templateGenerator) {
 }
 
 function FileCreator(fileLocation, templateGenerator) {
-  fs.writeFile(fileLocation, templateGenerator(fileToBeCreatedName, relevantArguments), function(err) {
-    if(err) console.log(err)
-    else console.log(fileType + ' created');
-  })
+  fs.readFile(templateGenerator, 'utf8', function (err,data) {
+    if (err) return console.log(err);
+
+    var props = createPropStrings(relevantArguments)
+
+    var result = data.replace(/PROP_TYPES/g, props);
+    result = result.replace(/COMPONENT_NAME/g, fileToBeCreatedName);
+
+    fs.writeFile(fileLocation, result, 'utf8', function (err) {
+      if (err) return console.log(err);
+      else console.log(fileType + ' created');
+    });
+  });
+
+
+  // fs.writeFile(fileLocation, templateGenerator(fileToBeCreatedName, relevantArguments), function(err) {
+  //   if(err) console.log(err)
+  //   else console.log(fileType + ' created');
+  // })
 }
 
 
@@ -68,11 +86,11 @@ function BuildArrayForGeneratedFiles() {
 
   switch (fileType) {
     case 'component':
-      fileLocation += '.jsx';
-      template = compGenerator;
+      fileLocation += '.js';
+      template = path.resolve(__dirname, './generated/componentDefault.js')
       return [{fileLocation, template}];
     case 'componentSpec':
-      fileLocation += '.spec.jsx';
+      fileLocation += '.spec.js';
       template = compSpecGenerator;
       return [{fileLocation, template}];
     case 'reducer':
@@ -86,11 +104,11 @@ function BuildArrayForGeneratedFiles() {
     case 'all':
       return [
         {
-          fileLocation: fileLocation + '.jsx',
+          fileLocation: fileLocation + '.js',
           template: compGenerator
         },
         {
-          fileLocation: fileLocation + '.spec.jsx',
+          fileLocation: fileLocation + '.spec.js',
           template: compSpecGenerator
         },
         {
@@ -104,3 +122,4 @@ function BuildArrayForGeneratedFiles() {
       ];
   }
 }
+
