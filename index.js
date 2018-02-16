@@ -2,19 +2,32 @@
 var fs = require('fs');
 var path = require('path');
 var mkdirp = require('mkdirp');
-// var compGenerator = require('./generated/componentGenerator');
-// var compGenerator = require('./generated/componentDefault');
-var compSpecGenerator = require('./generated/componentSpecGenerator');
+
 var reducerGenerator = require('./generated/reducerGenerator');
 var reducerSpecGenerator = require('./generated/reducerSpecGenerator');
 
-var { createPropStrings } = require('./helpers');
+var {
+  createPropStrings,
+  createStatePropStrings,
+  createSpecPropString,
+} = require('./helpers');
 
 
 // arguments in call
-var relevantArguments = process.argv.splice(2,process.argv.length)
-var fileType = relevantArguments.splice(0,1).join('')
-var fullFileLocation = relevantArguments.splice(0,1).join('')
+var relevantArguments = process.argv.splice(2, process.argv.length);
+var fileType = relevantArguments.splice(0, 1).join('');
+var fullFileLocation = relevantArguments.splice(0, 1).join('');
+
+// create arrays for propTypes and state
+var properties = relevantArguments;
+var stateProps = [];
+
+// check for state properties
+var statePosition = relevantArguments.indexOf('--s' || '--state');
+if (statePosition > -1) {
+  properties = relevantArguments.splice(0, statePosition);
+  stateProps = relevantArguments.splice(1, relevantArguments.length - 1);
+}
 
 // args for functions
 var directoryNameLocation = fullFileLocation.substr(0, fullFileLocation.lastIndexOf('/'))
@@ -61,22 +74,27 @@ function FileCreator(fileLocation, templateGenerator) {
   fs.readFile(templateGenerator, 'utf8', function (err,data) {
     if (err) return console.log(err);
 
-    var props = createPropStrings(relevantArguments)
+    var props = createPropStrings(properties);
+    var propsSpec = createSpecPropString(properties);
+    var state = createStatePropStrings(stateProps);
 
     var result = data.replace(/PROP_TYPES/g, props);
+    result = result.replace(/PROP_SPEC_TYPES/g, propsSpec);
+    result = result.replace(/STATE_VARIABLES/g, state);
     result = result.replace(/COMPONENT_NAME/g, fileToBeCreatedName);
+
+    // check for Immutable PropType and add if so
+    if (result.includes("Immutable")) {
+      result = result.replace(/IMMUTABLE\n/g, "import Immutable from 'immutable';\n");
+    } else {
+      result = result.replace(/IMMUTABLE\n/g, '');
+    }
 
     fs.writeFile(fileLocation, result, 'utf8', function (err) {
       if (err) return console.log(err);
       else console.log(fileType + ' created');
     });
   });
-
-
-  // fs.writeFile(fileLocation, templateGenerator(fileToBeCreatedName, relevantArguments), function(err) {
-  //   if(err) console.log(err)
-  //   else console.log(fileType + ' created');
-  // })
 }
 
 
@@ -91,7 +109,7 @@ function BuildArrayForGeneratedFiles() {
       return [{fileLocation, template}];
     case 'componentSpec':
       fileLocation += '.spec.js';
-      template = compSpecGenerator;
+      template = path.resolve(__dirname, './generated/componentSpecDefault.js')
       return [{fileLocation, template}];
     case 'reducer':
       fileLocation += 'Reducer.js';

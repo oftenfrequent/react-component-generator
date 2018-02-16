@@ -5,14 +5,14 @@ function createPropStrings(propsArray) {
 
   if(!propsArray.length) return spacing + "// example: PropTypes.?????,"+'\n';
 
-  propsArray.map(function(prop) {
+  propsArray.map(function(prop, i) {
     if(prop.indexOf(':')>-1) {
       var keyValue = prop.split(':');
 
       var required = isRequired(keyValue[1])
       var name = keyValue[0];
       var type = required ? keyValue[1].substr(0,keyValue[1].length - 1) : keyValue[1];
-      var ending = required ? '.isRequired,\n' : ',\n';
+      var ending = required ? '.isRequired,' : ',';
 
       if (type.indexOf('date') > -1 || type.indexOf('moment') > -1 || type.indexOf('Immutable') > -1) {
         propTypeString += spacing + name + ': PropTypes.instanceOf(' + type + ')' + ending;
@@ -20,9 +20,12 @@ function createPropStrings(propsArray) {
         propTypeString += spacing + name + ': PropTypes.' + type + ending;
       }
     } else {
-      propTypeString += spacing + '// ' + prop + ': PropTypes.?????' + ',\n';
+      propTypeString += spacing + '// ' + prop + ': PropTypes.?????' + ',';
     }
-  })
+
+    if (i !== propsArray.length - 1) propTypeString += '\n';
+  });
+
   return propTypeString;
 
   function isRequired(string) {
@@ -30,6 +33,39 @@ function createPropStrings(propsArray) {
   }
 }
 
+function createStatePropStrings(propsArray) {
+  var spacing = '      ';
+  var propTypeString = '';
+
+  if(!propsArray.length) return spacing + "// example: true,";
+
+  propsArray.map(function(string, i) {
+    var keyValue = string.split(':');
+    propTypeString += spacing + keyValue[0] + ': ' + keyValue[1] + ',';
+    if (i !== propsArray.length - 1) propTypeString += '\n';
+  });
+
+  return propTypeString;
+}
+
+
+function createSpecPropString(propsArray) {
+  var spacing = '        ';
+  var propTypeString = '';
+
+  if(!propsArray.length) return spacing + "// example={value}";
+
+  propsArray.map(function(string, i) {
+    var keyValue = string.split(':');
+    propTypeString += spacing + keyValue[0] + "={'" + keyValue[1] + "'}";
+    if (i !== propsArray.length - 1) propTypeString += '\n';
+  });
+
+  return propTypeString;
+}
+
 module.exports = {
   createPropStrings: createPropStrings,
+  createStatePropStrings: createStatePropStrings,
+  createSpecPropString: createSpecPropString,
 };

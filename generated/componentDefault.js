@@ -1,4 +1,5 @@
 import React from 'react';
+IMMUTABLE
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 
@@ -10,29 +11,34 @@ PROP_TYPES
   constructor(props) {
     super(props);
     this.state = {
-      // TODO: STATE_VARIABLES
+STATE_VARIABLES
     };
   }
 
   render() {
     return (
       <div>
-        <h1>COMPONENT_NAME</h1>
+        <h1>COMPONENT_NAME Component</h1>
         <pre>{JSON.stringify(this.props)}</pre>
       </div>
     );
   }
 }
 
+COMPONENT_NAME.defaultProps = {
+  // if props not required,
+  // specify defaults here
+};
+
 function mapStateToProps(state, props) {
   return {
-    // TODO: INTERNAL_PROP_TYPES
+    // state.get(...)
   };
 }
 
 export default connect(
   mapStateToProps,
   {
-    // TODO: PROP_FUNCTIONS
+    // action creators
   }
 )(COMPONENT_NAME);
