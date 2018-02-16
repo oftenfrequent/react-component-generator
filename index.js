@@ -12,12 +12,12 @@ var {
   createSpecPropString,
 } = require('./helpers');
 
-
 // arguments in call
 var relevantArguments = process.argv.splice(2, process.argv.length);
 var fileType = relevantArguments.splice(0, 1).join('');
 var fullFileLocation = relevantArguments.splice(0, 1).join('');
 
+// TODO: move inside of main script
 // create arrays for propTypes and state
 var properties = relevantArguments;
 var stateProps = [];
@@ -29,23 +29,29 @@ if (statePosition > -1) {
   stateProps = relevantArguments.splice(1, relevantArguments.length - 1);
 }
 
-// args for functions
-var directoryNameLocation = fullFileLocation.substr(0, fullFileLocation.lastIndexOf('/'))
-var fileToBeCreatedName = fullFileLocation.substr(fullFileLocation.lastIndexOf('/') + 1, fullFileLocation.length)
-var directoryLocation = path.resolve(process.cwd(), directoryNameLocation)
-var filesToBeCreatedArray = BuildArrayForGeneratedFiles();
+
+(function (){
+  // args for functions
+  var directoryNameLocation = fullFileLocation.substr(0, fullFileLocation.lastIndexOf('/'));
+  var fileToBeCreatedName = fullFileLocation.substr(fullFileLocation.lastIndexOf('/') + 1, fullFileLocation.length);
+  var directoryLocation = path.resolve(process.cwd(), directoryNameLocation);
 
 
-MainScript();
+  var filesToBeCreatedArray = BuildArrayForGeneratedFiles(directoryLocation, fileToBeCreatedName);
 
-function MainScript(){
+
+  // TODO: split into component and reducer generator
+
   filesToBeCreatedArray.map(function(fileToBuild){
     CheckIfSomethingExists(directoryLocation,
-      function() { CreateDirectory(fileToBuild.fileLocation, fileToBuild.template) },
-      function() { DirectoryExistsThen(fileToBuild.fileLocation, fileToBuild.template) }
+      function() { CreateDirectory(directoryLocation, fileToBuild.fileLocation, fileToBuild.template, fileToBeCreatedName) },
+      function() { DirectoryExistsThen(fileToBuild.fileLocation, fileToBuild.template, fileToBeCreatedName) }
     )
   });
 }
+)()
+
+
 
 function CheckIfSomethingExists(directoryOrFile, ifNotThenCreate, ifSoCallback) {
   fs.exists(directoryOrFile, function (exists) {
@@ -54,23 +60,43 @@ function CheckIfSomethingExists(directoryOrFile, ifNotThenCreate, ifSoCallback) 
   })
 }
 
-function CreateDirectory(fileLocation, templateGenerator) {
+function CreateDirectory(directoryLocation, fileLocation, templateGenerator, fileToBeCreatedName) {
   mkdirp(directoryLocation, function(err){
     if(err) console.log(err)
-    else FileCreator(fileLocation, templateGenerator)
+    else FileCreator(fileLocation, templateGenerator, fileToBeCreatedName)
   })
 }
 
-function DirectoryExistsThen(fileLocation, templateGenerator) {
-  CheckIfSomethingExists(fileLocation, function() { FileCreator(fileLocation, templateGenerator) }, function(){
-    console.log('this file already exists');
-    console.log('it will not overwrite without a file without the -f?');
-    console.log('-------------------------or-------------------------');
-    console.log('it will prompt you asking to overwrite this file (y/n)');
+function DirectoryExistsThen(fileLocation, templateGenerator, fileToBeCreatedName) {
+  CheckIfSomethingExists(fileLocation, function() { FileCreator(fileLocation, templateGenerator, fileToBeCreatedName) }, function(){
+    console.log('This file already exists.');
+    ask('Would you like to overwrite the file? (y/n)', /.+/, function(response){
+      if (response === 'y') FileCreator(fileLocation, templateGenerator, fileToBeCreatedName)
+      else process.exit();
+    })
   });
 }
 
-function FileCreator(fileLocation, templateGenerator) {
+function ask(question, format, callback) {
+  var stdin = process.stdin;
+  var stdout = process.stdout;
+
+  stdin.resume();
+  stdout.write(question + ": ");
+
+  stdin.once('data', function(data) {
+    data = data.toString().trim();
+
+    if (format.test(data)) {
+      callback(data);
+    } else {
+      stdout.write("It should match: "+ format +"\n");
+      ask(question, format, callback);
+    }
+  });
+}
+
+function FileCreator(fileLocation, templateGenerator, fileToBeCreatedName) {
   fs.readFile(templateGenerator, 'utf8', function (err,data) {
     if (err) return console.log(err);
 
@@ -79,9 +105,11 @@ function FileCreator(fileLocation, templateGenerator) {
     var state = createStatePropStrings(stateProps);
 
     var result = data.replace(/PROP_TYPES/g, props);
-    result = result.replace(/PROP_SPEC_TYPES/g, propsSpec);
     result = result.replace(/STATE_VARIABLES/g, state);
     result = result.replace(/COMPONENT_NAME/g, fileToBeCreatedName);
+
+    // spec only
+    result = result.replace(/PROP_SPEC_TYPES/g, propsSpec);
 
     // check for Immutable PropType and add if so
     if (result.includes("Immutable")) {
@@ -93,12 +121,13 @@ function FileCreator(fileLocation, templateGenerator) {
     fs.writeFile(fileLocation, result, 'utf8', function (err) {
       if (err) return console.log(err);
       else console.log(fileType + ' created');
+      process.exit();
     });
   });
 }
 
 
-function BuildArrayForGeneratedFiles() {
+function BuildArrayForGeneratedFiles(directoryLocation, fileToBeCreatedName) {
   var fileLocation = directoryLocation + '/' + fileToBeCreatedName;
   var template;
 
@@ -119,25 +148,6 @@ function BuildArrayForGeneratedFiles() {
       fileLocation += 'Reducer.spec.js';
       template = reducerSpecGenerator;
       return [{fileLocation, template}];
-    case 'all':
-      return [
-        {
-          fileLocation: fileLocation + '.js',
-          template: compGenerator
-        },
-        {
-          fileLocation: fileLocation + '.spec.js',
-          template: compSpecGenerator
-        },
-        {
-          fileLocation: fileLocation + 'Reducer.js',
-          template: reducerGenerator
-        },
-        {
-          fileLocation: fileLocation + 'Reducer.spec.js',
-          template: reducerSpecGenerator
-        }
-      ];
   }
 }
 
