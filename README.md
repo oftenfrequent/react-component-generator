@@ -20,7 +20,7 @@ $ react-generator file_type relative/location/ComponentOrReducerName options..
 
 * Component
 ```
-$ react-generator component ./src/Brain speed:number thoughts:object! createdAt:date notsureofthetype
+$ react-generator component ./src/Brain speed:number thoughts:object! createdAt:date notsureofthetype --t --s currentlyThinking onMeds
 ```
 
 This command would generate a react component called Brain saved to (cwd)/Brain.jsx. The component would have four properties being passed into it (speed, thoughts, createdAt, notsureofthetype) all with corresponding React.propTypes except for the last one because it lacks the ':(propType)'. Any PropType ending in a ! will be a required propType.

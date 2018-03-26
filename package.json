@@ -3,6 +3,8 @@
   "version": "1.0.0",
   "description": "",
   "scripts": {
+    "build": "./node_modules/babel-cli/bin/babel.js src --out-dir lib",
+    "transpile": "babel src --out-dir dist",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -10,11 +12,28 @@
   "license": "ISC",
   "preferGlobal": true,
   "bin": {
-    "react-generator": "index.js"
+    "react-generator": "dist/new.js"
   },
   "dependencies": {
+    "babel-preset-env": "^1.6.1",
     "fs": "0.0.2",
     "mkdirp": "^0.5.1",
     "path": "^0.12.7"
+  },
+  "babel": {
+    "presets": [
+      "es2015"
+    ]
+  },
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-core": "^6.26.0",
+    "babel-loader": "^7.1.4",
+    "babel-polyfill": "^6.26.0",
+    "babel-preset-es2015": "^6.24.1",
+    "babel-preset-es2017": "^6.24.1",
+    "babel-preset-stage-0": "^6.24.1",
+    "babel-preset-stage-3": "^6.24.1",
+    "babel-runtime": "^6.26.0"
   }
 }

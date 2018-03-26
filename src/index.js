@@ -3,14 +3,14 @@ var fs = require('fs');
 var path = require('path');
 var mkdirp = require('mkdirp');
 
-var reducerGenerator = require('./generated/reducerGenerator');
-var reducerSpecGenerator = require('./generated/reducerSpecGenerator');
+var reducerGenerator = require('../generated/reducerGenerator');
+var reducerSpecGenerator = require('../generated/reducerSpecGenerator');
 
 var {
   createPropStrings,
   createStatePropStrings,
   createSpecPropString,
-} = require('./helpers');
+} = require('./helpers/component');
 
 // arguments in call
 var relevantArguments = process.argv.splice(2, process.argv.length);
@@ -134,11 +134,11 @@ function BuildArrayForGeneratedFiles(directoryLocation, fileToBeCreatedName) {
   switch (fileType) {
     case 'component':
       fileLocation += '.js';
-      template = path.resolve(__dirname, './generated/componentDefault.js')
+      template = path.resolve(__dirname, '../generated/componentDefault.js')
       return [{fileLocation, template}];
     case 'componentSpec':
       fileLocation += '.spec.js';
-      template = path.resolve(__dirname, './generated/componentSpecDefault.js')
+      template = path.resolve(__dirname, '../generated/componentSpecDefault.js')
       return [{fileLocation, template}];
     case 'reducer':
       fileLocation += 'Reducer.js';

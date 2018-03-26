@@ -1,11 +1,13 @@
 import React from 'react';
-IMMUTABLE
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 
-export class COMPONENT_NAME extends React.Component {
+export class Brain extends React.Component {
   static propTypes = {
-PROP_TYPES
+    speed: PropTypes.number,
+    thoughts: PropTypes.object.isRequired,
+    createdAt: PropTypes.instanceOf(date),
+    // notsureofthetype: PropTypes.?????,
   };
 
   static defaultProps = {
@@ -16,14 +18,15 @@ PROP_TYPES
   constructor(props) {
     super(props);
     this.state = {
-STATE_VARIABLES
+      currentlyThinking: undefined,
+      onMeds: undefined,
     };
   }
 
   render() {
     return (
       <div>
-        <h1>COMPONENT_NAME Component</h1>
+        <h1>Brain Component</h1>
         <pre>{JSON.stringify(this.props)}</pre>
       </div>
     );
@@ -41,4 +44,4 @@ export default connect(
   {
     // action creators
   }
-)(COMPONENT_NAME);
+)(Brain);

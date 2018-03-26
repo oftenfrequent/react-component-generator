@@ -2,15 +2,18 @@ import React from 'react';
 import { shallow } from 'enzyme';
 import { fromJS } from 'immutable';
 
-import COMPONENT_NAME from './COMPONENT_NAME';
+import Brain from './Brain';
 
 const mockFn = jest.fn();
 
-describe('COMPONENT_NAME Component', () => {
+describe('Brain Component', () => {
   xit('tests something', () => {
     const wrapper = shallow(
-      <COMPONENT_NAME
-PROP_SPEC_TYPES
+      <Brain
+        speed={'number'}
+        thoughts={'object!'}
+        createdAt={'date'}
+        notsureofthetype={'undefined'}
       />,
     ); ///
 
