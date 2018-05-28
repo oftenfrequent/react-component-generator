@@ -1,153 +1,173 @@
 #!/usr/bin/env node
-var fs = require('fs');
-var path = require('path');
-var mkdirp = require('mkdirp');
+import path from 'path';
+import fs from 'fs';
 
-var reducerGenerator = require('../generated/reducerGenerator');
-var reducerSpecGenerator = require('../generated/reducerSpecGenerator');
-
-var {
+import { checkIfSomethingExists, createDirectory } from './helpers/fileSystem';
+import ask from './helpers/userPrompt';
+import {
   createPropStrings,
+  createDefaultProps,
   createStatePropStrings,
   createSpecPropString,
-} = require('./helpers/component');
+} from './helpers/component';
 
-// arguments in call
-var relevantArguments = process.argv.splice(2, process.argv.length);
-var fileType = relevantArguments.splice(0, 1).join('');
-var fullFileLocation = relevantArguments.splice(0, 1).join('');
+require('babel-core/register');
+require('babel-polyfill');
 
-// TODO: move inside of main script
-// create arrays for propTypes and state
-var properties = relevantArguments;
-var stateProps = [];
+// const component = path.resolve(__dirname, './generated/componentDefault.js')
+// const componentSpec = path.resolve(__dirname, './generated/componentSpecDefault.js')
 
-// check for state properties
-var statePosition = relevantArguments.indexOf('--s' || '--state');
-if (statePosition > -1) {
-  properties = relevantArguments.splice(0, statePosition);
-  stateProps = relevantArguments.splice(1, relevantArguments.length - 1);
-}
+// TODO: add reducer and it's spec
+// var reducerGenerator = require('./generated/reducerGenerator');
+// var reducerSpecGenerator = require('./generated/reducerSpecGenerator');
 
 
-(function (){
-  // args for functions
-  var directoryNameLocation = fullFileLocation.substr(0, fullFileLocation.lastIndexOf('/'));
-  var fileToBeCreatedName = fullFileLocation.substr(fullFileLocation.lastIndexOf('/') + 1, fullFileLocation.length);
-  var directoryLocation = path.resolve(process.cwd(), directoryNameLocation);
+(async function () {
+  try {
 
+    const relevantArguments = process.argv.splice(2, process.argv.length);
+    const fileTypeForGeneration = relevantArguments.splice(0, 1).join('');
+    const fullFileLocation = relevantArguments.splice(0, 1).join('');
 
-  var filesToBeCreatedArray = BuildArrayForGeneratedFiles(directoryLocation, fileToBeCreatedName);
+    // args for functions
+    const directoryNameLocation = fullFileLocation.substr(0, fullFileLocation.lastIndexOf('/'));
+    const fileNameToBeCreatedName = fullFileLocation.substr(fullFileLocation.lastIndexOf('/') + 1, fullFileLocation.length);
+    const directoryLocation = path.resolve(process.cwd(), directoryNameLocation);
 
+    // create location
+    const directoryExists = await checkIfSomethingExists(directoryLocation);
+    if (!directoryExists) await createDirectory(directoryLocation);
 
-  // TODO: split into component and reducer generator
-
-  filesToBeCreatedArray.map(function(fileToBuild){
-    CheckIfSomethingExists(directoryLocation,
-      function() { CreateDirectory(directoryLocation, fileToBuild.fileLocation, fileToBuild.template, fileToBeCreatedName) },
-      function() { DirectoryExistsThen(fileToBuild.fileLocation, fileToBuild.template, fileToBeCreatedName) }
-    )
-  });
-}
-)()
-
-
-
-function CheckIfSomethingExists(directoryOrFile, ifNotThenCreate, ifSoCallback) {
-  fs.exists(directoryOrFile, function (exists) {
-    if(exists) ifSoCallback()
-    else ifNotThenCreate()
-  })
-}
-
-function CreateDirectory(directoryLocation, fileLocation, templateGenerator, fileToBeCreatedName) {
-  mkdirp(directoryLocation, function(err){
-    if(err) console.log(err)
-    else FileCreator(fileLocation, templateGenerator, fileToBeCreatedName)
-  })
-}
-
-function DirectoryExistsThen(fileLocation, templateGenerator, fileToBeCreatedName) {
-  CheckIfSomethingExists(fileLocation, function() { FileCreator(fileLocation, templateGenerator, fileToBeCreatedName) }, function(){
-    console.log('This file already exists.');
-    ask('Would you like to overwrite the file? (y/n)', /.+/, function(response){
-      if (response === 'y') FileCreator(fileLocation, templateGenerator, fileToBeCreatedName)
-      else process.exit();
-    })
-  });
-}
-
-function ask(question, format, callback) {
-  var stdin = process.stdin;
-  var stdout = process.stdout;
-
-  stdin.resume();
-  stdout.write(question + ": ");
-
-  stdin.once('data', function(data) {
-    data = data.toString().trim();
-
-    if (format.test(data)) {
-      callback(data);
+    // check if a spec
+    let testRequested = false;
+    // have requested a spec?
+    if (fileTypeForGeneration.indexOf('Spec') > -1) {
+      // is a spec file
     } else {
-      stdout.write("It should match: "+ format +"\n");
-      ask(question, format, callback);
-    }
-  });
-}
-
-function FileCreator(fileLocation, templateGenerator, fileToBeCreatedName) {
-  fs.readFile(templateGenerator, 'utf8', function (err,data) {
-    if (err) return console.log(err);
-
-    var props = createPropStrings(properties);
-    var propsSpec = createSpecPropString(properties);
-    var state = createStatePropStrings(stateProps);
-
-    var result = data.replace(/PROP_TYPES/g, props);
-    result = result.replace(/STATE_VARIABLES/g, state);
-    result = result.replace(/COMPONENT_NAME/g, fileToBeCreatedName);
-
-    // spec only
-    result = result.replace(/PROP_SPEC_TYPES/g, propsSpec);
-
-    // check for Immutable PropType and add if so
-    if (result.includes("Immutable")) {
-      result = result.replace(/IMMUTABLE\n/g, "import Immutable from 'immutable';\n");
-    } else {
-      result = result.replace(/IMMUTABLE\n/g, '');
+      // check if spec requested
+      const testPosition = relevantArguments.indexOf('--t' || '--test');
+      // console.log('testPosition', testPosition);
+      if (testPosition > -1) {
+        testRequested = true;
+        relevantArguments.splice(testPosition, 1);
+      } else {
+        const testResponse = await ask('Would you like to create a test? (y/n)');
+        testRequested = (testResponse === 'y');
+      }
     }
 
-    fs.writeFile(fileLocation, result, 'utf8', function (err) {
-      if (err) return console.log(err);
-      else console.log(fileType + ' created');
-      process.exit();
+    const arrayOfFilesToBuild = BuildArrayForGeneratedFiles(fileTypeForGeneration, directoryLocation, fileNameToBeCreatedName, testRequested);
+
+    // create arrays for propTypes and state
+    let properties = relevantArguments;
+    let stateProps = [];
+
+    // check for state properties
+    const statePosition = relevantArguments.indexOf('--s' || '--state');
+    if (statePosition > -1) {
+      properties = relevantArguments.splice(0, statePosition);
+      stateProps = relevantArguments.splice(1, relevantArguments.length - 1);
+    }
+
+    let produceIndex = 0;
+
+    while (produceIndex < arrayOfFilesToBuild.length) {
+      const toBeBuilt = arrayOfFilesToBuild[produceIndex];
+
+      const fileExists = await checkIfSomethingExists(toBeBuilt.fileLocation);
+      let fileResponse = false;
+      if (fileExists) {
+        console.log(`${toBeBuilt.fileLocation} already exists.`);
+        fileResponse = await ask('Would you like to overwrite the file? (y/n)');
+      }
+
+      if (!fileExists || (fileResponse && fileResponse === 'y')) {
+        await FileCreator(toBeBuilt.fileLocation, toBeBuilt.template, fileNameToBeCreatedName, properties, stateProps)
+      }
+      produceIndex += 1;
+    }
+
+    process.exit();
+  } catch (e) {
+    console.error('Something went wrong: ', e);
+    process.exit();
+  }
+
+})();
+
+
+const FileCreator = async (fileLocation, templateGenerator, fileNameToBeCreatedName, properties, stateProps) => {
+  return new Promise(async (res, rej) => {
+    await fs.readFile(templateGenerator, 'utf8', (err, data) => {
+      if (err) return rej(err);
+
+      // create strings for placing in component
+      const props = createPropStrings(properties);
+      const defaultProps = createDefaultProps(properties);
+      const propsSpec = createSpecPropString(properties);
+      const state = createStatePropStrings(stateProps);
+
+      // replace in file
+      let result = data.replace(/PROP_TYPES/g, props);
+      result = result.replace(/DEFAULT_PROPS/g, defaultProps);
+      result = result.replace(/STATE_VARIABLES/g, state);
+      result = result.replace(/COMPONENT_NAME/g, fileNameToBeCreatedName);
+
+      // spec only
+      result = result.replace(/PROP_SPEC_TYPES/g, propsSpec);
+
+      // check for Immutable PropType and add if so
+      if (result.includes('Immutable')) {
+        result = result.replace(/IMMUTABLE\n/g, "import Immutable from 'immutable';\n");
+      } else {
+        result = result.replace(/IMMUTABLE\n/g, '');
+      }
+
+      fs.writeFile(fileLocation, result, 'utf8', (error) => {
+        if (error) return rej(error);
+        else {
+          console.log(`${fileLocation} created`);
+          res(true);
+        }
+      });
     });
   });
-}
+};
 
-
-function BuildArrayForGeneratedFiles(directoryLocation, fileToBeCreatedName) {
-  var fileLocation = directoryLocation + '/' + fileToBeCreatedName;
-  var template;
+const BuildArrayForGeneratedFiles = (fileType, directoryLocation, fileNameToBeCreatedName, testRequested) => {
+  const newfile = `${directoryLocation}/${fileNameToBeCreatedName}`;
 
   switch (fileType) {
     case 'component':
-      fileLocation += '.js';
-      template = path.resolve(__dirname, '../generated/componentDefault.js')
-      return [{fileLocation, template}];
+      const fileArr = [
+        {
+          fileLocation: `${newfile}.js`,
+          template: path.resolve(__dirname, '../generated/componentDefault.js'),
+        },
+      ];
+      if (testRequested) {
+        fileArr.push({
+          fileLocation: `${newfile}.spec.js`,
+          template: path.resolve(__dirname, '../generated/componentSpecDefault.js'),
+        });
+      }
+      return fileArr;
     case 'componentSpec':
-      fileLocation += '.spec.js';
-      template = path.resolve(__dirname, '../generated/componentSpecDefault.js')
-      return [{fileLocation, template}];
-    case 'reducer':
-      fileLocation += 'Reducer.js';
-      template = reducerGenerator;
-      return [{fileLocation, template}];
-    case 'reducerSpec':
-      fileLocation += 'Reducer.spec.js';
-      template = reducerSpecGenerator;
-      return [{fileLocation, template}];
+      return [
+        {
+          fileLocation: `${newfile}.spec.js`,
+          template: path.resolve(__dirname, '../generated/componentSpecDefault.js'),
+        },
+      ];
+    default :
+      return [];
+    // case 'reducer':
+    //   fileLocation += 'Reducer.js';
+    //   template = reducerGenerator;
+    //   return [{fileLocation, template}];
+    // case 'reducerSpec':
+    //   fileLocation += 'Reducer.spec.js';
+    //   template = reducerSpecGenerator;
+    //   return [{fileLocation, template}];
   }
-}
-
+};

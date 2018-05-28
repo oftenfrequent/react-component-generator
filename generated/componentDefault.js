@@ -8,9 +8,7 @@ export class COMPONENT_NAME extends React.Component {
 PROP_TYPES
   };
 
-  static defaultProps = {
-    // if props not required,
-    // specify defaults here
+  static defaultProps = {DEFAULT_PROPS
   };
 
   constructor(props) {
@@ -40,5 +38,5 @@ export default connect(
   mapStateToProps,
   {
     // action creators
-  }
+  },
 )(COMPONENT_NAME);

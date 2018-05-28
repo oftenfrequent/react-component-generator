@@ -3,8 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "scripts": {
-    "build": "./node_modules/babel-cli/bin/babel.js src --out-dir lib",
-    "transpile": "babel src --out-dir dist",
+    "build": "babel src --out-dir dist",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -12,7 +11,7 @@
   "license": "ISC",
   "preferGlobal": true,
   "bin": {
-    "react-generator": "dist/new.js"
+    "react-generator": "dist/index.js"
   },
   "dependencies": {
     "babel-preset-env": "^1.6.1",
@@ -22,11 +21,13 @@
   },
   "babel": {
     "presets": [
-      "es2015"
+      "es2015",
+      "stage-3"
     ]
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",
+    "babel-eslint": "^7.2.3",
     "babel-core": "^6.26.0",
     "babel-loader": "^7.1.4",
     "babel-polyfill": "^6.26.0",
@@ -34,6 +35,12 @@
     "babel-preset-es2017": "^6.24.1",
     "babel-preset-stage-0": "^6.24.1",
     "babel-preset-stage-3": "^6.24.1",
-    "babel-runtime": "^6.26.0"
+    "babel-runtime": "^6.26.0",
+    "eslint": "^3.19.0",
+    "eslint-config-airbnb": "^15.1.0",
+    "eslint-config-import": "^0.13.0",
+    "eslint-plugin-import": "^2.7.0",
+    "eslint-plugin-jsx-a11y": "^5.0.1",
+    "eslint-plugin-react": "^7.1.0"
   }
 }
