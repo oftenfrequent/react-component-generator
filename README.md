@@ -1,6 +1,6 @@
 # React Generator
 
-The goal of this npm module is to aide in the creation of react applications by giving you command line functionality to generate basic react files (components, reducers and specs) in a standard format utilizing best practices.
+The goal of this npm module is to aid in the creation of react applications by giving you command line functionality to generate basic react files (components, reducers and specs) in a standard format utilizing best practices.
 
 Start by
 ```
@@ -58,10 +58,10 @@ After edits have been made, use `npm run build` to build the files and then `npm
 
 
 TODOs
-[ ] minify files
-[ ] add tests for functions
-[ ] handling if file-type not written
-[x] after file written, if also requiring test, don't allow console.log to write on line to overwrite test file
-[ ] flag to create a connected component vs dumb component
-[x] prompt to create a spec if component generated
-[ ] prompt to create a spec if reducer generated
+- [ ] minify files
+- [ ] add tests for functions
+- [ ] handling if file-type not written
+- [x] after file written, if also requiring test, don't allow console.log to write on line to overwrite test file
+- [ ] flag to create a connected component vs dumb component
+- [x] prompt to create a spec if component generated
+- [ ] prompt to create a spec if reducer generated
